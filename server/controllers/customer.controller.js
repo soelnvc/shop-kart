@@ -28,6 +28,14 @@ export const registerCustomer = async (req, res) => {
       });
     }
 
+    const phoneExists = await Customer.findOne({ phone });
+
+    if (phoneExists) {
+      return res.status(409).json({
+        message: "Phone number already registered",
+      });
+    }
+
     const salt = await bcrypt.genSalt(10);
 
     const hashedPassword = await bcrypt.hash(password, salt);
@@ -58,6 +66,12 @@ export const registerCustomer = async (req, res) => {
       },
     });
   } catch (error) {
+    if (error.code === 11000) {
+      return res.status(409).json({
+        message: "Email or phone number already registered",
+      });
+    }
+
     res.status(500).json({
       message: "Server crashed",
       error: error.message,
@@ -123,3 +137,15 @@ export const getMe = async (req, res) => {
         customer: req.customer
     })
 }
+
+export const logoutCustomer = (req, res) => {
+  res.clearCookie("token", {
+    httpOnly: true,
+    secure: false,
+  });
+
+  res.status(200).json({
+    success: true,
+    message: "Logout successful",
+  });
+};

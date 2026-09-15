@@ -2,9 +2,11 @@ import React from 'react';
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import api from '../services/api'
+import { useAuth } from '../context/AuthContext'
 
 function Signup() {
     const navigate = useNavigate();
+    const { setCustomer } = useAuth();
 
     const [formData, setFormData] = useState({
         fullname: "",
@@ -29,9 +31,10 @@ function Signup() {
         try {
             setLoading(true);
 
-            await api.post("/customers/register", formData);
+            const response = await api.post("/customers/register", formData);
 
-            navigate("/login");
+            setCustomer(response.data.customer);
+            navigate("/home");
         } catch (error) {
             setError(
             error.response?.data?.message || "Registration failed"

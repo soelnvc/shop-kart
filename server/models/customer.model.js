@@ -23,6 +23,14 @@ const customerSchema = new mongoose.Schema({
         unique: true
     },
 
+    wishlist: {
+        type: [{
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Product"
+        }],
+        default: []
+    }
+
 })
 
 const Customer = mongoose.model('Customer', customerSchema)

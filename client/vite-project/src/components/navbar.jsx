@@ -32,6 +32,9 @@ function Navbar() {
           <Link to="/products" className="rounded-md px-3 py-2 text-sm text-gray-500 transition-colors hover:bg-gray-50 hover:text-gray-900">
             Products
           </Link>
+          <Link to="/wishlist" className="rounded-md px-3 py-2 text-sm text-gray-500 transition-colors hover:bg-gray-50 hover:text-gray-900">
+            Wishlist
+          </Link>
           <Link to="/home" className="rounded-md px-3 py-2 text-sm text-gray-500 transition-colors hover:bg-gray-50 hover:text-gray-900">
             Account
           </Link>

@@ -4,6 +4,7 @@ import Navbar from '../components/navbar';
 import ProductCard from '../components/ProductCard';
 import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
+import { getWishlist } from '../services/wishlist';
 
 const categoryOptions = ['All Categories', 'Electronics', 'Fashion', 'Books', 'Home'];
 
@@ -12,6 +13,8 @@ function Products() {
   const { customer, loading: authLoading, error: authError } = useAuth();
 
   const [products, setProducts] = useState([]);
+  const [wishlistIds, setWishlistIds] = useState([]);
+  const [wishlistLoadError, setWishlistLoadError] = useState('');
   const [searchInput, setSearchInput] = useState('');
   const [search, setSearch] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All Categories');
@@ -44,7 +47,7 @@ function Products() {
 
         const response = await api.get('/products', { params });
         setProducts(response.data.products || []);
-      } catch (requestError) {
+      } catch {
         setError('Something went wrong while loading products.');
       } finally {
         setLoading(false);
@@ -54,6 +57,30 @@ function Products() {
     const timer = setTimeout(fetchProducts, 250);
     return () => clearTimeout(timer);
   }, [authLoading, customer, search, selectedCategory]);
+
+  useEffect(() => {
+    if (authLoading || !customer) return;
+
+    let cancelled = false;
+
+    const fetchWishlist = async () => {
+      try {
+        const response = await getWishlist();
+        if (!cancelled) setWishlistIds((response.wishlist || []).map((product) => product._id));
+      } catch (requestError) {
+        if (requestError.response?.status === 401 || requestError.response?.status === 404) {
+          navigate('/login', { replace: true });
+        } else if (!cancelled) {
+          setWishlistLoadError('Saved wishlist status could not be loaded.');
+        }
+      }
+    };
+
+    fetchWishlist();
+    return () => {
+      cancelled = true;
+    };
+  }, [authLoading, customer, navigate]);
 
   if (authLoading || !customer) {
     return (
@@ -126,11 +153,21 @@ function Products() {
           ) : products.length === 0 ? (
             <p className="text-center text-gray-500">No products found.</p>
           ) : (
+            <>
+              {wishlistLoadError && <p className="mb-4 text-sm text-amber-700" role="status">{wishlistLoadError}</p>}
             <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
               {products.map((product) => (
-                <ProductCard key={product._id} product={product} />
+                <ProductCard
+                  key={product._id}
+                  product={product}
+                  isWishlisted={wishlistIds.includes(product._id)}
+                  onWishlistChange={(productId) => setWishlistIds((current) => (
+                    current.includes(productId) ? current : [...current, productId]
+                  ))}
+                />
               ))}
             </div>
+            </>
           )}
         </div>
       </div>

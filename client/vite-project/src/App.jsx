@@ -5,6 +5,7 @@ import Signup from './Pages/signup.jsx';
 import Home from './Pages/home.jsx';
 import Products from './Pages/Products.jsx';
 import ProductDetails from './Pages/ProductDetails.jsx';
+import Wishlist from './Pages/Wishlist.jsx';
 import { AuthProvider } from './context/AuthContext.jsx';
 
 function App() {
@@ -18,6 +19,7 @@ function App() {
           <Route path='/home' element={<Home />} />
           <Route path='/products' element={<Products />} />
           <Route path='/products/:id' element={<ProductDetails />} />
+          <Route path='/wishlist' element={<Wishlist />} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>
